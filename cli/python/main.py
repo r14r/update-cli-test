@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Dependency-free Python CLI fixture."""
 import argparse
 import json
