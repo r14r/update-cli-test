@@ -1,0 +1,43 @@
+name: Fixture CI
+on:
+  push:
+  pull_request:
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: extractions/setup-just@v2
+      - name: Seed explicitly synthetic CI update receipt
+        run: python3 scripts/workflow.py ci-baseline
+      - name: Exercise all five stages and verify expected outputs
+        run: just verify
+      - name: Validate Compose specification
+        run: docker compose config --quiet
+  compose-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: extractions/setup-just@v2
+      - name: Launch FastAPI and Nuxt UI stack
+        run: just up
+      - name: Verify running services
+        run: |
+          for i in $(seq 1 45); do
+            if just smoke; then exit 0; fi
+            sleep 4
+          done
+          docker compose logs
+          exit 1
+      - name: Stop services
+        if: always()
+        run: docker compose down --remove-orphans

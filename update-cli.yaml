@@ -1,0 +1,76 @@
+schemaVersion: 2
+project:
+  slug: update-cli-test
+  name: Update CLI Test
+  description: Full-stack integration fixture for update-cli
+update:
+  mode: pull
+  source:
+    type: repository
+    repository: https://github.com/r14r/update-cli-test.git
+    ref: main
+  releaseDir: release
+  currentDir: current
+  backup:
+    directory: backup
+    keep: 3
+  retention:
+    releases: 5
+  sync:
+    preserve:
+      - .git/
+      - .venv/
+      - .artifacts/
+      - frontend/node_modules/
+      - frontend/.nuxt/
+      - frontend/.output/
+    keepOnSetupError: false
+  docker:
+    lifecycle: auto
+  healthcheck:
+    type: none
+defaults:
+  timeout: 20m
+  failFast: true
+requirements:
+  commands: [python3, node, npm, just]
+  optionalCommands: [docker]
+workflows:
+  setup:
+    tasks: [bootstrap]
+  bootstrap:
+    tasks: [bootstrap]
+  precommit:
+    tasks: [precommit]
+  ci:
+    tasks: [verify]
+  build:
+    tasks: [build]
+  test:
+    tasks: [test]
+tasks:
+  bootstrap:
+    steps:
+      - id: bootstrap
+        name: Bootstrap Python and Node
+        shell: just bootstrap
+  precommit:
+    steps:
+      - id: precommit
+        name: Lint Python files
+        shell: just precommit
+  test:
+    steps:
+      - id: test
+        name: Run Python and Node tests
+        shell: just test
+  build:
+    steps:
+      - id: build
+        name: Build Nuxt frontend
+        shell: just build
+  verify:
+    steps:
+      - id: verify
+        name: Verify full update and build lifecycle
+        shell: just verify

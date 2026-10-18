@@ -1,0 +1,20 @@
+{
+  "name": "update-cli-test-frontend",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "nuxt dev --host 0.0.0.0",
+    "build": "nuxt build",
+    "test": "node --test test/*.test.mjs",
+    "typecheck": "nuxt typecheck"
+  },
+  "dependencies": {
+    "@nuxt/ui": "^2.22.0",
+    "nuxt": "^3.15.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "vue-tsc": "^2.2.0"
+  }
+}
