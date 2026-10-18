@@ -57,7 +57,8 @@ def update(cli):
 
 
 def stage(name):
-    check_update()
+    # Standalone lifecycle stages must work before the first update.
+    # Only the complete verification command requires an update receipt.
     if name == "bootstrap":
         assert (ROOT / ".venv/bin/python").exists(), "Python virtualenv missing"
         assert (ROOT / "frontend/node_modules").exists(), "Node dependencies missing"
