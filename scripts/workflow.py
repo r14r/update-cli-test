@@ -82,6 +82,7 @@ def stage(name):
             dest.chmod(0o755)
         assert (target / "fixture-py").exists()
         assert (target / "fixture-node").exists()
+    ART.mkdir(parents=True, exist_ok=True)
     (ART / f"stage-{name}").write_text(EXPECTED[name] + "\n")
     print(f"{name.upper()} OK")
 
