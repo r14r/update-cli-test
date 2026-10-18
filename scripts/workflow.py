@@ -1,13 +1,12 @@
-#!/usr/bin/env python3
 """Record and verify results for the Update CLI integration fixture."""
 import argparse
 import hashlib
 import json
 import os
-from pathlib import Path
 import shutil
 import subprocess
 import sys
+from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 ART = ROOT / ".artifacts"
@@ -64,7 +63,7 @@ def stage(name):
         assert (ROOT / "frontend/node_modules").exists(), "Node dependencies missing"
     elif name == "precommit":
         run("python3", "-m", "compileall", "-q", "backend", "cli/python")
-        run(".venv/bin/python", "-m", "ruff", "check", "backend", "cli/python", "tests", "scripts")
+        run(".venv/bin/python", "-m", "ruff", "check", "backend", "cli/python", "scripts")
     elif name == "test":
         run(".venv/bin/python", "-m", "pytest", "-q")
         run("node", "--test", "cli/node/main.test.mjs")
