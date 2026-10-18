@@ -40,6 +40,14 @@ def check_update():
     print("UPDATE RECEIPT OK", flush=True)
 
 
+def ci_baseline():
+    assert os.getenv("GITHUB_ACTIONS") == "true", "Synthetic receipts are for GitHub CI only"
+    save(ART / "update.json", {"status": "success",
+         "version": (ROOT / "VERSION").read_text().strip(),
+         "manifest_sha256": digest(ROOT / "update-cli.yaml")})
+    print("SYNTHETIC CI UPDATE BASELINE CREATED")
+
+
 def update(cli):
     assert shutil.which(cli), f"Update CLI not found: {cli}"
     run(cli, "update", "--root", str(ROOT), "--no-setup", "--no-wait")
@@ -88,10 +96,11 @@ def verify():
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("action", choices=("update", *STAGES, "verify", "check-update"))
+    parser.add_argument("action", choices=("update", *STAGES, "verify", "check-update", "ci-baseline"))
     parser.add_argument("--cli", default=os.getenv("UPDATE_CLI_BIN", "update-cli"))
     options = parser.parse_args()
     if options.action == "update": update(options.cli)
+    elif options.action == "ci-baseline": ci_baseline()
     elif options.action == "verify": verify()
     elif options.action == "check-update": check_update()
     else: stage(options.action)
