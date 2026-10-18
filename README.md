@@ -13,7 +13,7 @@ just update
 just verify
 ```
 
-`just update` invokes the real `update-cli update` command without automatic setup or interactive waiting. On success it records an update receipt containing the project version and a SHA-256 checksum of the update manifest. If the update fails, no success receipt is written.
+`just update` creates an isolated managed project in `.artifacts/managed-project/` using `update-cli init` (only on first run), then invokes the real `update-cli update` command without automatic setup or interactive waiting. The Git checkout under `current/` is never treated as the updater's runtime root. The downloaded release version is checked against the checkout before writing the receipt. On success it records an update receipt containing the project version and a SHA-256 checksum of the update manifest. If the update fails, no success receipt is written.
 
 `just verify` **requires that update receipt** before running:
 
@@ -25,7 +25,7 @@ just verify
 
 Individual stages (including `update-cli bootstrap` and `just bootstrap`) can be run before the first update. Only `just verify` requires a successful update receipt. Each stage writes an independently checked status receipt, and the verifier asserts all five stages plus the expected outputs. A failure stops execution immediately.
 
-> Run from the **intended update root**. Depending on the Update CLI installation, a source update may create a `current/` release directory. After updating, run `just verify` inside the checkout containing `update-cli.yaml` and the saved `.artifacts` receipt. The receipt directory is preserved by the manifest.
+> Run both commands from your Git checkout. Update CLI's runtime configuration is created separately in `.artifacts/managed-project/.update-cli/config.json`; do not initialize `.update-cli` inside your `current/` checkout.
 
 ## CI
 

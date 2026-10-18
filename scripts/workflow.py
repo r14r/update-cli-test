@@ -10,6 +10,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 ART = ROOT / ".artifacts"
+UPDATE_TARGET = ART / "managed-project"
+REPOSITORY = "https://github.com/r14r/update-cli-test.git"
 STAGES = ("bootstrap", "precommit", "test", "build", "install")
 EXPECTED = {"bootstrap": "ready", "precommit": "clean", "test": "passed",
             "build": "built", "install": "installed"}
@@ -36,6 +38,11 @@ def check_update():
     assert data["status"] == "success"
     assert data["version"] == (ROOT / "VERSION").read_text().strip()
     assert data["manifest_sha256"] == digest(ROOT / "update-cli.yaml")
+    if "target" in data:
+        deployed = Path(data["target"]) / "current" / "VERSION"
+        assert deployed.is_file(), f"Deployed VERSION missing: {deployed}"
+        assert data["installed_sha256"] == digest(deployed)
+        assert deployed.read_text().strip() == data["version"]
     print("UPDATE RECEIPT OK", flush=True)
 
 
@@ -49,10 +56,25 @@ def ci_baseline():
 
 def update(cli):
     assert shutil.which(cli), f"Update CLI not found: {cli}"
-    run(cli, "update", "--root", str(ROOT), "--no-setup", "--no-wait")
+    config = UPDATE_TARGET / ".update-cli" / "config.json"
+    if not config.is_file():
+        UPDATE_TARGET.mkdir(parents=True, exist_ok=True)
+        run(cli, "init", "--root", str(UPDATE_TARGET), "--project",
+            "update-cli-test", "--repository", REPOSITORY, "--no-wait")
+        assert config.is_file(), f"Initialization did not create {config}"
+    run(cli, "update", "--root", str(UPDATE_TARGET), "--no-setup", "--no-wait")
+    deployed = UPDATE_TARGET / "current" / "VERSION"
+    assert deployed.is_file(), f"Updated application is missing {deployed}"
+    installed_version = deployed.read_text().strip()
+    assert installed_version == (ROOT / "VERSION").read_text().strip(), (
+        f"Installed version {installed_version} differs from checkout "
+        f"{(ROOT / 'VERSION').read_text().strip()}"
+    )
     save(ART / "update.json", {"status": "success",
-         "version": (ROOT / "VERSION").read_text().strip(),
-         "manifest_sha256": digest(ROOT / "update-cli.yaml")})
+         "version": installed_version,
+         "manifest_sha256": digest(ROOT / "update-cli.yaml"),
+         "installed_sha256": digest(deployed),
+         "target": str(UPDATE_TARGET)})
     print("UPDATE RECEIPT OK")
 
 
