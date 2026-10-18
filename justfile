@@ -9,7 +9,7 @@ update:
 bootstrap:
     python3 -m venv .venv
     .venv/bin/python -m pip install -q -r backend/requirements.txt
-    npm install --prefix frontend --no-audit --no-fund --silent
+    npm install --prefix frontend --no-audit --no-fund --loglevel=error
     python3 scripts/workflow.py bootstrap
 
 precommit:
@@ -37,7 +37,7 @@ verify:
 verify-local:
     python3 -m venv .venv
     .venv/bin/python -m pip install -q -r backend/requirements.txt
-    npm install --prefix frontend --no-audit --no-fund --silent
+    npm install --prefix frontend --no-audit --no-fund --loglevel=error
     .venv/bin/python -m pytest -q
     node --test cli/node/main.test.mjs
     npm test --prefix frontend
