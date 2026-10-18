@@ -57,7 +57,8 @@ def update(cli):
 
 
 def stage(name):
-    check_update()
+    # Standalone lifecycle stages must work before the first update.
+    # Only the complete verification command requires an update receipt.
     if name == "bootstrap":
         assert (ROOT / ".venv/bin/python").exists(), "Python virtualenv missing"
         assert (ROOT / "frontend/node_modules").exists(), "Node dependencies missing"
@@ -81,6 +82,7 @@ def stage(name):
             dest.chmod(0o755)
         assert (target / "fixture-py").exists()
         assert (target / "fixture-node").exists()
+    ART.mkdir(parents=True, exist_ok=True)
     (ART / f"stage-{name}").write_text(EXPECTED[name] + "\n")
     print(f"{name.upper()} OK")
 

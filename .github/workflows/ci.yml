@@ -14,6 +14,8 @@ jobs:
         with:
           node-version: '22'
       - uses: extractions/setup-just@v2
+      - name: Verify standalone lifecycle behavior
+        run: python3 -m unittest discover -s tests -v
       - name: Seed explicitly synthetic CI update receipt
         run: python3 scripts/workflow.py ci-baseline
       - name: Exercise all five stages and verify expected outputs

@@ -23,7 +23,7 @@ just verify
 4. **Build:** compile the Nuxt SSR frontend and verify the expected server bundle.
 5. **Install:** install sample Python and Node CLI programs under `.artifacts/install/`, never overwriting system executables.
 
-Each stage writes an independently checked status receipt, and the verifier asserts all five stages plus the expected outputs. A failure stops execution immediately.
+Individual stages (including `update-cli bootstrap` and `just bootstrap`) can be run before the first update. Only `just verify` requires a successful update receipt. Each stage writes an independently checked status receipt, and the verifier asserts all five stages plus the expected outputs. A failure stops execution immediately.
 
 > Run from the **intended update root**. Depending on the Update CLI installation, a source update may create a `current/` release directory. After updating, run `just verify` inside the checkout containing `update-cli.yaml` and the saved `.artifacts` receipt. The receipt directory is preserved by the manifest.
 
